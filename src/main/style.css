@@ -1,0 +1,9 @@
+.hero {
+    background: url('https://via.placeholder.com/1500x600') no-repeat center center/cover;
+    height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+}
