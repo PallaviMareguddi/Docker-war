@@ -1,15 +1,18 @@
-pipeline{
+pipeline {
     agent any
-    tools{
-        maven 'maven' 
+
+    tools {
+        maven 'maven'
     }
+
     environment {
-        DOCKERHUB_CREDENTIALS_ID = 'webapp' 
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds'
         DOCKERHUB_USERNAME       = 'pallavi883'
         IMAGE_NAME               = "${env.DOCKERHUB_USERNAME}/webapp"
         CONTAINER_NAME           = "my-app-container"
     }
-    stages{
+
+    stages {
         stage('Github src') {
             steps {
                 echo 'Checking out source code...'
@@ -17,8 +20,8 @@ pipeline{
             }
         }
 
-        stage('Build stage'){
-            steps{
+        stage('Build stage') {
+            steps {
                 echo 'Building with Maven...'
                 sh 'mvn clean package'
             }
@@ -45,10 +48,10 @@ pipeline{
                 script {
                     echo "Pushing image: ${IMAGE_NAME}:${BUILD_NUMBER}"
                     sh "sudo docker push ${IMAGE_NAME}:${BUILD_NUMBER}"
-                    
+
                     echo "Tagging as 'latest'..."
                     sh "sudo docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest"
-                    
+
                     echo "Pushing 'latest' tag..."
                     sh "sudo docker push ${IMAGE_NAME}:latest"
                 }
@@ -58,7 +61,7 @@ pipeline{
         stage('Remove Local Docker Image') {
             steps {
                 echo "Removing local image: ${IMAGE_NAME}:${BUILD_NUMBER}"
-                sh "sudo docker rmi ${IMAGE_NAME}:${BUILD_NUMBER}"
+                sh "sudo docker rmi ${IMAGE_NAME}:${BUILD_NUMBER} || true"
             }
         }
 
@@ -71,6 +74,7 @@ pipeline{
             }
         }
     }
+
     post {
         always {
             echo 'This will always run after the stages are complete.'
@@ -80,6 +84,6 @@ pipeline{
         }
         failure {
             echo 'This will run only if the pipeline fails.'
-        }
-    }
+        }
+    }
 }
