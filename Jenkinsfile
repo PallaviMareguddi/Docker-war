@@ -16,7 +16,7 @@ pipeline {
         stage('Github src') {
             steps {
                 echo 'Checking out source code...'
-                git branch: 'main', url: 'https://github.com/PallaviMareguddi/Docker-war.git'
+                git branch: 'main', url: 'https://github.com/PallaviMareguddi/Docker-war'
             }
         }
 
