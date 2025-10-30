@@ -1,18 +1,15 @@
-pipeline {
+pipeline{
     agent any
-
-    tools {
-        maven 'maven'
+    tools{
+        maven 'maven' 
     }
-
     environment {
-        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds'
-        DOCKERHUB_USERNAME       = 'pallavi883'
-        IMAGE_NAME               = "${env.DOCKERHUB_USERNAME}/webapp"
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds' 
+        DOCKERHUB_USERNAME       = 'eagowri'
+        IMAGE_NAME               = "${env.DOCKERHUB_USERNAME}/my-app"
         CONTAINER_NAME           = "my-app-container"
     }
-
-    stages {
+    stages{
         stage('Github src') {
             steps {
                 echo 'Checking out source code...'
@@ -20,8 +17,8 @@ pipeline {
             }
         }
 
-        stage('Build stage') {
-            steps {
+        stage('Build stage'){
+            steps{
                 echo 'Building with Maven...'
                 sh 'mvn clean package'
             }
@@ -33,8 +30,7 @@ pipeline {
                 sh "sudo docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} ."
             }
         }
-
-        stage('Login to Docker Hub') {
+ stage('Login to Docker Hub') {
             steps {
                 echo 'Logging in to Docker Hub...'
                 withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
@@ -48,20 +44,19 @@ pipeline {
                 script {
                     echo "Pushing image: ${IMAGE_NAME}:${BUILD_NUMBER}"
                     sh "sudo docker push ${IMAGE_NAME}:${BUILD_NUMBER}"
-
+                    
                     echo "Tagging as 'latest'..."
                     sh "sudo docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest"
-
+                    
                     echo "Pushing 'latest' tag..."
                     sh "sudo docker push ${IMAGE_NAME}:latest"
                 }
             }
         }
-
-        stage('Remove Local Docker Image') {
+stage('Remove Local Docker Image') {
             steps {
                 echo "Removing local image: ${IMAGE_NAME}:${BUILD_NUMBER}"
-                sh "sudo docker rmi ${IMAGE_NAME}:${BUILD_NUMBER} || true"
+                sh "sudo docker rmi ${IMAGE_NAME}:${BUILD_NUMBER}"
             }
         }
 
@@ -74,7 +69,6 @@ pipeline {
             }
         }
     }
-
     post {
         always {
             echo 'This will always run after the stages are complete.'
@@ -84,6 +78,6 @@ pipeline {
         }
         failure {
             echo 'This will run only if the pipeline fails.'
-        }
-    }
+        }
+    }
 }
